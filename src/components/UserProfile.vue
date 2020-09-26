@@ -8,9 +8,24 @@
       <div class="user-profile__follower-count">
         <strong>Followers: </strong> {{ followers }}
       </div>
+      <form class="user-profile_create-twoot" @submit.prevent="createNewTwoot">
+        <label for="newTwoot"><strong>New Twoot</strong></label>
+        <textarea  id="newTwoot" rows="4" v-model="newTwootContent"></textarea>
+        <div class="user-profile_create-twoot-type">
+          <label for="newTwootType"><strong>Type: </strong></label>
+          <select id="newTwootType" v-model="selectedTwootType">
+            <option v-bind:value="option.value" v-for="(option,index) in twootTypes" :key="index">
+              {{option.name}}
+            </option> 
+          </select>
+        </div>
+        <button>
+          Twoot!
+        </button>
+      </form>
     </div>
     <div class="user-profile__twoots-wrapper">
-        <TwootItem v-for="twoot in user.twoots" v-bind:key="twoot.id" :username="user.username" :twoot="twoot"/>
+        <TwootItem v-for="twoot in user.twoots" v-bind:key="twoot.id" :username="user.userName" :twoot="twoot" @favourite="toggleFavourite"/>
     </div>
   </div>
 </template>
@@ -24,6 +39,12 @@ export default {
   },
   data() {
     return {
+      newTwootContent:'',
+      selectedTwootType:'instant',
+      twootTypes:[
+        {value:"draft",name:"Draft"},
+        {value:"instant",name:"Instant Twoot"}
+      ],
       followers: 0,
       user: {
         id: 1,
@@ -31,7 +52,7 @@ export default {
         firstName: "Mitchel",
         lastName: "Rooney",
         email: "aditirajendran94@gmail.com",
-        isAdmin: false,
+        isAdmin: true,
         twoots:[
             {
                 id:1,content:"Twooter is amazing!"
@@ -52,6 +73,19 @@ export default {
     followUser() {
       this.followers++;
     },
+    toggleFavourite(id){
+      console.log(`Tweet Favourited ${id}`);
+    },
+    createNewTwoot(){
+      if(this.newTwootContent && this.selectedTwootType !== "draft"){
+        //add twoots to the top of the list.push will add to the end of the list.
+        this.user.twoots.unshift({
+          id: this.user.twoots.length + 1,
+          content: this.newTwootContent
+        });
+        this.newTwootContent = '';
+      }
+    }
   },
   watch: {
     followers(newFollowerCount, oldFollowerCount) {
@@ -101,6 +135,12 @@ h1{
     margin: 0;
 }
 .user-profile__twoots-wrapper{
-    
+    display: grid;
+    grid-gap: 10px;
+}
+.user-profile_create-twoot{
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
 }
 </style>
